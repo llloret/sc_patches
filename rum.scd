@@ -18,26 +18,43 @@ SynthDef("rum", {arg osc_freq = 440, osc_pitch = 0, osc_wavetype = 0, osc_width 
 	var env = Env.adsr(amp_a, amp_d, amp_s, amp_r).kr(2, gate, mul: amp_gain);
 	var saw = Saw.ar(osc_freq, 1 - osc_wavetype);
 	var square = Pulse.ar(osc_freq, osc_width, osc_wavetype);
-	var sub = SinOsc.ar(osc_freq / 2);
-	var wave_mix = Mix([saw, square, sub]);
+	var sub = SinOsc.ar(osc_freq / 2, mul: subosc_gain);
+	var wave_mix = Mix([saw, square, sub]) / 3;
 	var filter_out = RLPF.ar(wave_mix, filter_cutoff, filter_reso);
 	// Debug, to see values outside
-	//SendTrig.kr(Impulse.kr(4), 0, filter_cutoff);
+	SendTrig.kr(Impulse.kr(4), 0, osc_wavetype);
 	Out.ar(out, filter_out * env);
 }).add;
 )
 
-
+c = Bus.control;
+d = Bus.control;
+e = Bus.control;
 
 // MIDI Handling
 (
 ~midinotes = Array.newClear(128);
 MIDIIn.connectAll;
 MIDIFunc.trace(true);
-MIDIFunc.noteOn({arg val, num, chan, src; ~midinotes[num] = Synth(\rum, [\osc_freq, num.midicps]);});
-MIDIFunc.noteOff({arg val, num, chan, src; ~midinotes[num].release; ~midinotes[num] = nil;});
-)
+MIDIFunc.noteOn({arg val, num, chan, src;
+	var synth = Synth(\rum, [\osc_freq, num.midicps, \subosc_gain, 0.0]);
+	~midinotes[num] = synth;
+	~midinotes[num].map(\osc_wavetype, c);
+	~midinotes[num].map(\subosc_gain, d);
+	~midinotes[num].map(\filter_cutoff, e);
+});
 
+MIDIFunc.noteOff({arg val, num, chan, src;
+	~midinotes[num].release;
+	~midinotes[num] = nil;
+});
+
+MIDIFunc.cc({arg val, num, chan, src;
+	if (num == 28, {c.set(val/127.0)});
+	if (num == 29, {d.set(val/127.0)});
+	if (num == 74, {e.set(val*10)});
+});
+)
 // MIDI test
 MIDIIn.doNoteOnAction(89, 89, 89, 69);
 MIDIIn.doNoteOffAction(89, 89, 89, 69);
@@ -45,17 +62,11 @@ MIDIIn.doNoteOffAction(89, 89, 89, 69);
 ~midinotes[91].postln
 
 // Standalone stuff
-r = Synth(\rum)
-r.set(\osc_freq, 69.midicps);
-r.release
 
-c = Bus.control;
-r.map(\filter_cutoff, c);
 c.scope;
 s.scope;
-c.set(0);
 
-{Out.kr(c, MouseY.kr(10, 4000))}.play;
+{Out.kr(c, MouseY.kr(0, 1))}.play;
 
 // Debug, to see the values outside
 o = OSCFunc({arg msg; msg.postln}, '/tr', s.addr);
