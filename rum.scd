@@ -31,18 +31,18 @@ SynthDef("rum", {arg osc_freq = 440, osc_pitch = 0, osc_wavetype = 0, osc_width 
 
 // MIDI Handling
 (
+~midinotes = Array.newClear(128);
 MIDIIn.connectAll;
 MIDIFunc.trace(true);
-MIDIFunc.noteOn({arg val, num, chan, src; r = Synth(\rum, [\osc_freq, num.midicps]);});
-MIDIFunc.noteOff({arg val, num, chan, src; r.release;});
+MIDIFunc.noteOn({arg val, num, chan, src; ~midinotes[num] = Synth(\rum, [\osc_freq, num.midicps]);});
+MIDIFunc.noteOff({arg val, num, chan, src; ~midinotes[num].release; ~midinotes[num] = nil;});
 )
 
 // MIDI test
 MIDIIn.doNoteOnAction(89, 89, 89, 69);
 MIDIIn.doNoteOffAction(89, 89, 89, 69);
 
-
-
+~midinotes[91].postln
 
 // Standalone stuff
 r = Synth(\rum)
