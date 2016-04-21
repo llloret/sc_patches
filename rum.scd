@@ -10,7 +10,7 @@ SynthDef("rum", {arg osc_freq = 440, osc_pitch = 0, osc_wavetype = 0, osc_width 
 	var saw = Saw.ar(osc_freq, 1 - osc_wavetype);
 	var square = Pulse.ar(osc_freq, osc_width, osc_wavetype);
 	var wave_mix = Mix([saw, square]);
-	Out.ar(out, wave_mix);
+	Out.ar(out, wave_mix * env);
 }).add;
 )
 
