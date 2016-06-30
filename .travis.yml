@@ -53,8 +53,8 @@ install: true
   
 # command to make the build
 script:
-  - mkdir build
-  - cd build
-  - cmake ..
+  - mkdir build && cd build
+  - cmake -DCMAKE_CXX_COMPILER=$COMPILER ..
+  - make
 
 
