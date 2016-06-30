@@ -49,6 +49,7 @@ before_install:
   - export PATH=${DEPS_DIR}/cmake/bin:${PATH}
   
   - cmake --version
+  = $COMPILER --version
 
 # command to install dependencies
 install: true
