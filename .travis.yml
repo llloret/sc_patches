@@ -7,5 +7,10 @@ before_install:
 # command to install dependencies
 install: true
   
-# command to run tests
+# command to make the build
+script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
 
