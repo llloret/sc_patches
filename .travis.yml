@@ -1,5 +1,7 @@
 language: c++
-
+os:
+ - linux
+ - osx
 # Use new trusty images, should yield newer compilers and packages
 sudo: required
 dist: precise
@@ -23,20 +25,23 @@ matrix:
           packages:
             - g++-5
       env: COMPILER=g++-5
-    - compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-          packages:
-            - clang-3.7
-      env: COMPILER=clang++-3.7
+#    - compiler: clang
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#            - llvm-toolchain-precise-3.7
+#          packages:
+#            - clang-3.7
+#      env: COMPILER=clang++-3.7
 
 
 before_install:
-#  - sudo apt-get update
-  - mkdir cmake && travis_retry wget --quiet --no-check-certificate -O - https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz | tar --strip-components=1 -xz -C cmake
+  - ifmac () { if [[ $TRAVIS_OS_NAME == osx ]]; then eval $@; fi; }
+  - iflin () { if [[ $TRAVIS_OS_NAME == linux ]]; then eval $@; fi; }
+  - sudo apt-get update
+  - iflin mkdir cmake && travis_retry wget --quiet --no-check-certificate -O - https://cmake.org/files/v3.5/cmake-3.5.2-Linux-x86_64.tar.gz | tar --strip-components=1 -xz -C cmake
+  - ifmac mkdir cmake && travis_retry wget --quiet --no-check-certificate -O - https://cmake.org/files/v3.5/cmake-3.5.2-Darwin-x86_64.tar.gz | tar --strip-components=1 -xz -C cmake
   - export PATH=$PWD/cmake/bin:${PATH}
   - cmake/bin/cmake --version
   - cmake --version
