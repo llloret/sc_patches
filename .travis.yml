@@ -9,17 +9,6 @@ sudo: required
 dist: precise
 language: cpp
 
-matrix:
-  include:
-    - compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-4.9
-      env: COMPILER=g++-4.9
-
 before_install:
   - ifmac () { if [[ $TRAVIS_OS_NAME == osx ]]; then eval $@; fi; }
   - iflin () { if [[ $TRAVIS_OS_NAME == linux ]]; then eval $@; fi; }
@@ -30,7 +19,10 @@ before_install:
   - export PATH=$PWD/cmake/bin:${PATH}
   - cmake/bin/cmake --version
   - cmake --version
-  - $COMPILER --version
+  - iflin sudo apt-get install --yes build-essential gcc-4.9 g++-4.9 cmake pkg-config 
+  - iflin sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
+  - iflin sudo update-alternatives --auto gcc
+  - gcc --version
 
 # command to install dependencies
 install: true
