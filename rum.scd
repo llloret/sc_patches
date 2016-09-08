@@ -6,6 +6,7 @@ s.boot;
 // TODO:
 // do we need to scale the Mix back
 // add modulation parameters
+// to mix the saw and square waves (perhaps it is better to use the LinSelectX UGen)
 //
 SynthDef("rum", {arg osc_freq = 440, osc_pitch = 0, osc_wavetype = 0, osc_width = 0.5,
 	amp_gain = 0.5, amp_velo = 1, amp_a = 0.01, amp_d = 0.3, amp_s = 0.5, amp_r = 1,
@@ -58,7 +59,7 @@ MIDIFunc.cc({arg val, num, chan, src;
 // MIDI test
 MIDIIn.doNoteOnAction(89, 89, 89, 69);
 MIDIIn.doNoteOffAction(89, 89, 89, 69);
-
+//
 ~midinotes[91].postln
 
 // Standalone stuff
@@ -68,5 +69,14 @@ s.scope;
 
 {Out.kr(c, MouseY.kr(0, 1))}.play;
 
+{Out.kr(c, EnvGen.kr(Env.adsr(1, 1), LFPulse.kr(0.2)))}.play;
+
+{Out.kr(c, MouseY.kr(100, 10000))}.play;
+{Out.kr(d, MouseX.kr(0, 1))}.play;
+
 // Debug, to see the values outside
 o = OSCFunc({arg msg; msg.postln}, '/tr', s.addr);
+
+~synth = Synth(\rum, [\osc_freq, 60.midicps, \subosc_gain, 0.0]);
+~synth.map(\osc_freq, c);
+~synth.map(\osc_wavetype, d);

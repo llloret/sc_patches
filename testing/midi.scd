@@ -1,3 +1,15 @@
+// osmid testing
+(
+OSCFunc.trace;
+MIDIClient.init;
+MIDIIn.connectAll;
+g = MIDIOut(1);
+)
+g.noteOn(2, 70, 80)
+
+
+
+
 // Initialize MIDI
 MIDIClient.init
 
@@ -27,8 +39,8 @@ m = MIDIOut(0)
 g = MIDIOut(1)
 
 // What you would expect is that if I send to m (MIDIOut(0)), nothing is shown on the MIDIFunc. But if I send to g (MIDIOut(1)), since that is a loopback device, I would expect to see input on the MIDIFunc.
-m.noteOn(16, 60, 60)
-g.noteOn(16, 60, 60)
+m.noteOn(1, 60, 60)
+g.noteOn(2, 70, 80)
 
 
 MIDIClient.sources.do(_.dump);
@@ -136,7 +148,7 @@ Routine({
 				\midinote, Pseq([60, 72, 84, [60, 64, 67]], 1),
 				\dur, Pn(2)
 			),
-			Rest(1),
+			Rest(2),
 			(play: {cond.unhang})
 		]).play;
 
@@ -161,3 +173,24 @@ Routine({
 ).play;
 )
 
+b=(play: {123.postln;})
+b.play
+
+a = Pseq([1, 2, 3, 4, (play: {"Hi".postln;})], 2).trace.play
+
+
+(
+k = Pbind(
+	    \degree, Pseq(#[0, 0, 4, 4, 5, 5, 4], 1),
+	    \dur, Pseq(#[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1], 1)
+).asStream;    // remember, you have to make a stream out of the pattern before using it
+)
+
+(
+k = Pbind(
+	\degree, Pseq([6, 7, 8, 6, (play: {"hi".postln;}) 6, 7], 1),
+	\dur, Pn(2)
+).asStream;
+)
+
+k.next(())
