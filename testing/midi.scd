@@ -1,4 +1,4 @@
-// osmid testing
+// osmid m2o testing
 (
 OSCFunc.trace;
 MIDIClient.init;
